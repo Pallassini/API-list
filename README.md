@@ -28,7 +28,7 @@ L'applicazione presentata è un progetto web che combina funzionalità di un'app
 
 1. **Clonare il Repository**: Clona il repository Git per ottenere il codice sorgente.
 2. **Installare le Dipendenze**: Utilizza Maven per scaricare le dipendenze necessarie.
-3. **Avviare l'Applicazione**: Utilizza il plugin Jetty per avviare il server.
+3. **Avviare l'Applicazione**: Utilizza il plugin Jetty per avviare il server: mvn jetty:run
 4. **Testare i Servizi REST**: Utilizza uno strumento come Postman o cURL per testare i servizi REST.
-5. **Visualizzare le JSP**: Apri un browser e naviga alle pagine JSP per visualizzare i contenuti.
+5. **Visualizzare le JSP**: Apri un browser e naviga alle pagine JSP per visualizzare i contenuti tramite la porta 8080 --> localhost:8080
 
