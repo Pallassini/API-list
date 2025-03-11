@@ -31,4 +31,6 @@ L'applicazione presentata è un progetto web che combina funzionalità di un'app
 3. **Avviare l'Applicazione**: Utilizza il plugin Jetty per avviare il server: mvn jetty:run
 4. **Testare i Servizi REST**: Utilizza uno strumento come Postman o cURL per testare i servizi REST.
 5. **Visualizzare le JSP**: Apri un browser e naviga alle pagine JSP per visualizzare i contenuti tramite la porta 8080 --> localhost:8080
+6. Per aggiungere un elemento alla lista eseguire da cmd: curl -X POST http://localhost:8080/api/items -H "Content-Type: application/json" -d "{\"name\":\"Test Item\",\"description\":\"This is a test item\"}"
+7. Per visualizzare i dati inseriti: http://localhost:8080/api/items
 
