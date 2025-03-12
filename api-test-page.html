@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API REST</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        input, textarea { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
+        button { padding: 8px 15px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #itemsList { margin-top: 20px; }
+        .item { padding: 10px; margin: 5px 0; background: #f9f9f9; border-radius: 3px; position: relative; }
+        .item .controls { position: absolute; right: 10px; top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test API RESTful</h1>
+        
+        <div class="section">
+            <h2>Crea nuovo elemento</h2>
+            <input type="text" id="newName" placeholder="Nome">
+            <textarea id="newDescription" placeholder="Descrizione"></textarea>
+            <button onclick="createItem()">Crea</button>
+            <div id="createResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Visualizza tutti gli elementi</h2>
+            <button onclick="loadAllItems()">Aggiorna lista</button>
+            <div id="itemsList"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Aggiorna elemento</h2>
+            <input type="number" id="updateId" placeholder="ID dell'elemento">
+            <input type="text" id="updateName" placeholder="Nuovo nome">
+            <textarea id="updateDescription" placeholder="Nuova descrizione"></textarea>
+            <button onclick="updateItem()">Aggiorna</button>
+            <div id="updateResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Elimina elemento</h2>
+            <input type="number" id="deleteId" placeholder="ID dell'elemento">
+            <button onclick="deleteItem()">Elimina</button>
+            <div id="deleteResult"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8080/api/items';
+        
+        // Carica tutti gli elementi
+        function loadAllItems() {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const itemsList = document.getElementById('itemsList');
+                    itemsList.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        itemsList.innerHTML = '<p>Nessun elemento trovato</p>';
+                        return;
+                    }
+                    
+                    data.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'item';
+                        itemDiv.innerHTML = `
+                            <strong>ID: ${item.id}</strong> - ${item.name}
+                            <p>${item.description}</p>
+                            <div class="controls">
+                                <button onclick="prepareUpdate(${item.id}, '${item.name}', '${item.description}')">Modifica</button>
+                                <button onclick="confirmDelete(${item.id})">Elimina</button>
+                            </div>
+                        `;
+                        itemsList.appendChild(itemDiv);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById('itemsList').innerHTML = `<p>Errore: ${error.message}</p>`;
+                });
+        }
+        
+        // Crea nuovo elemento
+        function createItem() {
+            const name = document.getElementById('newName').value;
+            const description = document.getElementById('newDescription').value;
+            
+            if (!name) {
+                document.getElementById('createResult').innerHTML = '<p>Il nome è obbligatorio</p>';
+                return;
+            }
+            
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('createResult').innerHTML = `<p>Elemento creato con ID: ${data.id}</p>`;
+                document.getElementById('newName').value = '';
+                document.getElementById('newDescription').value = '';
+                loadAllItems();
+            })
+            .catch(error => {
+                document.getElementById('createResult').innerHTML = `<p>Errore: ${error.message}</p>`;
+            });
+        }
+        
+        // Prepara form di aggiornamento
+        function prepareUpdate(id, name, description) {
+            document.getElementById('updateId').value = id;
+            document.getElementById('updateName').value = name;
+            document.getElementById('updateDescription').value = description;
+        }
+        
+        // Aggiorna elemento
+        function updateItem() {
+            const id = document.getElementById('updateId').value;
+            const name = document.getElementById('updateName').value;
+            const description = document.getElementById('updateDescription').value;
+            
+            if (!id || !name) {
+                document.getElementById('updateResult').innerHTML = '<p>ID e nome sono obbligatori</p>';
+                return;
+            }
+            
+            fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Elemento non trovato');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('updateResult').innerHTML = `<p>Elemento aggiornato con successo</p>`;
+                document.getElementById('updateId').value = '';
+                document.getElementById('updateName').value = '';
+                document.getElementById('updateDescription').value = '';
+                loadAllItems();
+            })
+            .catch(error => {
+                document.getElementById('updateResult').innerHTML = `<p>Errore: ${error.message}</p>`;
+            });
+        }
+        
+        // Conferma eliminazione
+        function confirmDelete(id) {
+            if (confirm(`Sei sicuro di voler eliminare l'elemento con ID ${id}?`)) {
+                document.getElementById('deleteId').value = id;
+                deleteItem();
+            }
+        }
+        
+        // Elimina elemento
+        function deleteItem() {
+            const id = document.getElementById('deleteId').value;
+            
+            if (!id) {
+                document.getElementById('deleteResult').innerHTML = '<p>ID è obbligatorio</p>';
+                return;
+            }
+            
+            fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Elemento non trovato');
+                }
+                document.getElementById('deleteResult').innerHTML = `<p>Elemento eliminato con successo</p>`;
+                document.getElementById('deleteId').value = '';
+                loadAllItems();
+            })
+            .catch(error => {
+                document.getElementById('deleteResult').innerHTML = `<p>Errore: ${error.message}</p>`;
+            });
+        }
+        
+        // Carica gli elementi all'avvio
+        window.onload = loadAllItems;
+    </script>
+</body>
+</html>
