@@ -33,4 +33,5 @@ L'applicazione presentata è un progetto web che combina funzionalità di un'app
 5. **Visualizzare le JSP**: Apri un browser e naviga alle pagine JSP per visualizzare i contenuti tramite la porta 8080 --> localhost:8080
 6. Per aggiungere un elemento alla lista eseguire da cmd: curl -X POST http://localhost:8080/api/items -H "Content-Type: application/json" -d "{\"name\":\"Test Item\",\"description\":\"This is a test item\"}"
 7. Per visualizzare i dati inseriti: http://localhost:8080/api/items
+8. Puoi testare direttamente con una pagina HTML le richieste tramite la pagina nella root: api-test-page
 
